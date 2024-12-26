@@ -358,7 +358,9 @@ class AndroidCameraCameraX extends CameraPlatform {
     // Determine ResolutionSelector and QualitySelector based on
     // resolutionPreset for camera UseCases.
     final ResolutionSelector? presetResolutionSelector =
-        _getResolutionSelectorFromPreset(mediaSettings?.resolutionPreset);
+        mediaSettings is CustomMediaSettings
+        ? _getResolutionSelectorFromSettings(mediaSettings!.resolutionSettings)
+        : _getResolutionSelectorFromPreset(mediaSettings?.resolutionPreset);
     final QualitySelector? presetQualitySelector =
         _getQualitySelectorFromPreset(mediaSettings?.resolutionPreset);
 
@@ -1350,6 +1352,25 @@ class AndroidCameraCameraX extends CameraPlatform {
       case DeviceOrientation.landscapeRight:
         return Surface.rotation270;
     }
+  }
+
+  ResolutionSelector? _getResolutionSelectorFromSettings(
+    ResolutionSettings settings,
+  ) {
+    final resolutionStrategy = proxy.createResolutionStrategy(
+      boundSize: settings.boundSize,
+      fallbackRule: settings.resolutionFallbackRule,
+    );
+    final resolutionFilter = settings.boundSize != null
+        ? proxy.createResolutionFilterWithOnePreferredSize(settings.boundSize!)
+        : null;
+    final aspectRatioStrategy = proxy.createAspectRatioStrategy(
+      settings.aspectRatio,
+      settings.aspectRatioFallbackRule,
+    );
+    return proxy.createResolutionSelector(
+      resolutionStrategy, resolutionFilter, aspectRatioStrategy,
+    );
   }
 
   /// Returns the [ResolutionSelector] that maps to the specified resolution
