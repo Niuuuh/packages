@@ -5,6 +5,7 @@
 // ignore_for_file: avoid_equals_and_hash_code_on_mutable_classes
 
 import 'resolution_preset.dart';
+import 'dart:ui' show Size;
 
 /// Recording media settings.
 ///
@@ -94,7 +95,7 @@ class ResolutionSettings {
     this.resolutionFallbackRule,
     this.highestAvailable = false,
     required this.aspectRatio,
-    this.aspectRatioFallbackRule = AspectRatioStrategy.fallbackRuleAuto,
+    this.aspectRatioFallbackRule = 1,
   });
 
   final Size? boundSize;
