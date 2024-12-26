@@ -75,3 +75,31 @@ class MediaSettings {
         'enableAudio: $enableAudio}';
   }
 }
+
+class CustomMediaSettings extends MediaSettings {
+  const CustomMediaSettings({
+    required this.resolutionSettings,
+    super.fps,
+    super.videoBitrate,
+    super.audioBitrate,
+    super.enableAudio,
+  });
+
+  final ResolutionSettings resolutionSettings;
+}
+
+class ResolutionSettings {
+  const ResolutionSettings({
+    this.boundSize,
+    this.resolutionFallbackRule,
+    this.highestAvailable = false,
+    required this.aspectRatio,
+    this.aspectRatioFallbackRule = AspectRatioStrategy.fallbackRuleAuto,
+  });
+
+  final Size? boundSize;
+  final int? resolutionFallbackRule;
+  final bool highestAvailable;
+  final int aspectRatio;
+  final int aspectRatioFallbackRule;
+}
