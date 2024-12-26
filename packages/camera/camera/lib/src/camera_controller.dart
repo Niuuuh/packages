@@ -257,6 +257,22 @@ class CameraController extends ValueNotifier<CameraValue> {
             audioBitrate: audioBitrate),
         super(CameraValue.uninitialized(description));
 
+  CameraController.custom(
+    CameraDescription description,
+    ResolutionSettings resolutionSettings, {
+    bool enableAudio = true,
+    int? fps,
+    int? videoBitrate,
+    int? audioBitrate,
+    this.imageFormatGroup,
+  })  : mediaSettings = CustomMediaSettings(
+            resolutionSettings: resolutionSettings,
+            enableAudio: enableAudio,
+            fps: fps,
+            videoBitrate: videoBitrate,
+            audioBitrate: audioBitrate),
+        super(CameraValue.uninitialized(description));
+
   /// The properties of the camera device controlled by this controller.
   CameraDescription get description => value.description;
 
