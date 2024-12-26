@@ -1380,30 +1380,27 @@ class AndroidCameraCameraX extends CameraPlatform {
   /// closest lower resolution available.
     ResolutionSelector? _getResolutionSelectorFromPreset(
       ResolutionPreset? preset) {
-    const int fallbackRule = ResolutionStrategy.fallbackRuleClosestHigher;
+    const int fallbackRule =
+        ResolutionStrategy.fallbackRuleClosestLowerThenHigher;
 
     Size? boundSize;
-    int? aspectRatio = AspectRatio.ratio4To3;
+    int? aspectRatio;
     ResolutionStrategy? resolutionStrategy;
     switch (preset) {
       case ResolutionPreset.low:
         boundSize = const Size(320, 240);
+        aspectRatio = AspectRatio.ratio4To3;
       case ResolutionPreset.medium:
-        boundSize = (aspectRatio == AspectRatio.ratio16To9)
-            ? const Size(720, 480)
-            : const Size(640, 480);
+        boundSize = const Size(720, 480);
       case ResolutionPreset.high:
-        boundSize = (aspectRatio == AspectRatio.ratio16To9)
-            ? const Size(1280, 720)
-            : const Size(960, 720);
+        boundSize = const Size(1280, 720);
+        aspectRatio = AspectRatio.ratio16To9;
       case ResolutionPreset.veryHigh:
-        boundSize = (aspectRatio == AspectRatio.ratio16To9)
-            ? const Size(1920, 1080)
-            : const Size(1440, 1080);
+        boundSize = const Size(1920, 1080);
+        aspectRatio = AspectRatio.ratio16To9;
       case ResolutionPreset.ultraHigh:
-        boundSize = (aspectRatio == AspectRatio.ratio16To9)
-            ? const Size(3840, 2160)
-            : const Size(2880, 2160);
+        boundSize = const Size(3840, 2160);
+        aspectRatio = AspectRatio.ratio16To9;
       case ResolutionPreset.max:
         // Automatically set strategy to choose highest available.
         resolutionStrategy =
