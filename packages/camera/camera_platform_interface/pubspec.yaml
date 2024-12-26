@@ -17,6 +17,12 @@ dependencies:
   plugin_platform_interface: ^2.1.7
   stream_transform: ^2.0.0
 
+dependency_overrides:
+  camera_platform_interface:
+    git:
+      url: https://github.com/Niuuuh/packages.git
+      path: packages/camera/camera_platform_interface
+
 dev_dependencies:
   async: ^2.5.0
   flutter_test:
