@@ -3,3 +3,6 @@
 // found in the LICENSE file.
 
 export 'src/android_camera_camerax.dart';
+export 'src/aspect_ratio_strategy.dart';
+export 'src/fallback_strategy.dart';
+export 'src/resolution_strategy.dart';
