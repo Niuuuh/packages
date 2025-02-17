@@ -1279,20 +1279,6 @@ class AndroidCameraCameraX extends CameraPlatform {
     int? aspectRatio;
     ResolutionStrategy? resolutionStrategy;
     switch (preset) {
-      case ResolutionPreset.low:
-        boundSize = const Size(320, 240);
-        aspectRatio = AspectRatio.ratio4To3;
-      case ResolutionPreset.medium:
-        boundSize = const Size(720, 480);
-      case ResolutionPreset.high:
-        boundSize = const Size(1280, 720);
-        aspectRatio = AspectRatio.ratio16To9;
-      case ResolutionPreset.veryHigh:
-        boundSize = const Size(1920, 1080);
-        aspectRatio = AspectRatio.ratio16To9;
-      case ResolutionPreset.ultraHigh:
-        boundSize = const Size(3840, 2160);
-        aspectRatio = AspectRatio.ratio16To9;
       case ResolutionPreset.max:
         // Automatically set strategy to choose highest available.
         resolutionStrategy =
@@ -1303,18 +1289,30 @@ class AndroidCameraCameraX extends CameraPlatform {
         // If no preset is specified, default to CameraX's default behavior
         // for each UseCase.
         return null;
+      default:
+        boundSize = preset.size;
+        aspectRatio = _inferAspectRatio(boundSize!);
     }
 
     resolutionStrategy = proxy.createResolutionStrategy(
         boundSize: boundSize, fallbackRule: fallbackRule);
     final ResolutionFilter resolutionFilter =
         proxy.createResolutionFilterWithOnePreferredSize(boundSize);
-    final AspectRatioStrategy? aspectRatioStrategy = aspectRatio == null
-        ? null
-        : proxy.createAspectRatioStrategy(
+    final AspectRatioStrategy aspectRatioStrategy =
+        proxy.createAspectRatioStrategy(
             aspectRatio, AspectRatioStrategy.fallbackRuleAuto);
     return proxy.createResolutionSelector(
         resolutionStrategy, resolutionFilter, aspectRatioStrategy);
+  }
+
+  int _inferAspectRatio(Size size) {
+    final double aspectRatio = size.width / size.height;
+
+    if ((aspectRatio - 16 / 9).abs() < (aspectRatio - 4 / 3).abs()) {
+      return AspectRatio.ratio16To9;
+    } else {
+      return AspectRatio.ratio4To3;
+    }
   }
 
   /// Returns the [QualitySelector] that maps to the specified resolution
@@ -1341,6 +1339,8 @@ class AndroidCameraCameraX extends CameraPlatform {
         // If no preset is specified, default to CameraX's default behavior
         // for each UseCase.
         return null;
+      default:
+        videoQuality = VideoQuality.highest;
     }
 
     // We will choose the next highest video quality if the one desired

@@ -896,6 +896,8 @@ void main() {
           expectedVideoQuality = VideoQuality.UHD;
         case ResolutionPreset.max:
           expectedVideoQuality = VideoQuality.highest;
+        default:
+          expectedVideoQuality = VideoQuality.highest;
       }
 
       const VideoResolutionFallbackRule expectedFallbackRule =
