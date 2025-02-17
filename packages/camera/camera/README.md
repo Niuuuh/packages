@@ -1,4 +1,7 @@
 ```
+dependencies:
+  camera: any
+
 dependency_overrides:
   camera:
     git:
