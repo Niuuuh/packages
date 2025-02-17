@@ -388,6 +388,88 @@ class AndroidCameraCameraX extends CameraPlatform {
     return flutterSurfaceTextureId;
   }
 
+  /// Creates an uninitialized camera instance and returns the camera ID.
+  ///
+  /// In the CameraX library, cameras are accessed by combining [UseCase]s
+  /// to an instance of a [ProcessCameraProvider]. Thus, to create an
+  /// uninitialized camera instance, this method retrieves a
+  /// [ProcessCameraProvider] instance.
+  ///
+  /// The specified `mediaSettings.resolutionPreset` is the target resolution
+  /// that CameraX will attempt to select for the [UseCase]s constructed in this
+  /// method ([preview], [imageCapture], [imageAnalysis], [videoCapture]). If
+  /// unavailable, a fallback behavior of targeting the next highest resolution
+  /// will be attempted. See https://developer.android.com/media/camera/camerax/configuration#specify-resolution.
+  ///
+  /// To return the camera ID, which is equivalent to the ID of the surface texture
+  /// that a camera preview can be drawn to, a [Preview] instance is configured
+  /// and bound to the [ProcessCameraProvider] instance.
+  Future<int> createCameraWithResolution(
+    CameraDescription cameraDescription,
+    MediaSettings? mediaSettings,
+    ResolutionSelector? resolutionSelector,
+  ) async {
+    // Must obtain proper permissions before attempting to access a camera.
+    await proxy.requestCameraPermissions(mediaSettings?.enableAudio ?? false);
+
+    // Save CameraSelector that matches cameraDescription.
+    final int cameraSelectorLensDirection =
+        _getCameraSelectorLensDirection(cameraDescription.lensDirection);
+    cameraIsFrontFacing =
+        cameraSelectorLensDirection == CameraSelector.lensFacingFront;
+    cameraSelector = proxy.createCameraSelector(cameraSelectorLensDirection);
+    // Start listening for device orientation changes preceding camera creation.
+    proxy.startListeningForDeviceOrientationChange(
+        cameraIsFrontFacing, cameraDescription.sensorOrientation);
+    // Determine ResolutionSelector and QualitySelector based on
+    // resolutionPreset for camera UseCases.
+    final ResolutionSelector? presetResolutionSelector = resolutionSelector ??
+        _getResolutionSelectorFromPreset(mediaSettings?.resolutionPreset);
+    final QualitySelector? presetQualitySelector =
+        _getQualitySelectorFromPreset(mediaSettings?.resolutionPreset);
+
+    // Retrieve a fresh ProcessCameraProvider instance.
+    processCameraProvider ??= await proxy.getProcessCameraProvider();
+    processCameraProvider!.unbindAll();
+
+    // Configure Preview instance.
+    preview = proxy.createPreview(presetResolutionSelector,
+        /* use CameraX default target rotation */ null);
+    final int flutterSurfaceTextureId =
+        await proxy.setPreviewSurfaceProvider(preview!);
+
+    // Configure ImageCapture instance.
+    imageCapture = proxy.createImageCapture(presetResolutionSelector,
+        /* use CameraX default target rotation */ null);
+
+    // Configure ImageAnalysis instance.
+    // Defaults to YUV_420_888 image format.
+    imageAnalysis = proxy.createImageAnalysis(presetResolutionSelector,
+        /* use CameraX default target rotation */ null);
+
+    // Configure VideoCapture and Recorder instances.
+    recorder = proxy.createRecorder(presetQualitySelector);
+    videoCapture = await proxy.createVideoCapture(recorder!);
+
+    // Bind configured UseCases to ProcessCameraProvider instance & mark Preview
+    // instance as bound but not paused. Video capture is bound at first use
+    // instead of here.
+    camera = await processCameraProvider!.bindToLifecycle(
+        cameraSelector!, <UseCase>[preview!, imageCapture!, imageAnalysis!]);
+    await _updateCameraInfoAndLiveCameraState(flutterSurfaceTextureId);
+    previewInitiallyBound = true;
+    _previewIsPaused = false;
+
+    // Retrieve info required for correcting the rotation of the camera preview
+    // if necessary.
+
+    final Camera2CameraInfo camera2CameraInfo =
+        await proxy.getCamera2CameraInfo(cameraInfo!);
+    sensorOrientation = await proxy.getSensorOrientation(camera2CameraInfo);
+
+    return flutterSurfaceTextureId;
+  }
+
   /// Initializes the camera on the device.
   ///
   /// Since initialization of a camera does not directly map as an operation to
