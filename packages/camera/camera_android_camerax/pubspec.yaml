@@ -30,7 +30,6 @@ dependency_overrides:
     git:
       url: https://github.com/Niuuuh/packages.git
       path: packages/camera/camera_platform_interface
-      ref: 3d9a988
 
 dev_dependencies:
   build_runner: ^2.2.0

@@ -2,7 +2,7 @@ name: camera
 description: A Flutter plugin for controlling the camera. Supports previewing
   the camera feed, capturing images and video, and streaming image buffers to
   Dart.
-repository: https://github.com/flutter/packages/tree/main/packages/camera/camera
+repository: https://github.com/Niuuuh/packages/tree/main/packages/camera/camera
 issue_tracker: https://github.com/flutter/flutter/issues?q=is%3Aissue+is%3Aopen+label%3A%22p%3A+camera%22
 version: 0.11.1
 
@@ -21,24 +21,19 @@ flutter:
         default_package: camera_web
 
 dependencies:
-  camera_android_camerax: ^0.6.13
-  camera_avfoundation: ^0.9.18
-  camera_platform_interface: ^2.9.0
-  camera_web: ^0.3.3
-  flutter:
-    sdk: flutter
-  flutter_plugin_android_lifecycle: ^2.0.2
-
-dependency_overrides:
   camera_android_camerax:
     git:
       url: https://github.com/Niuuuh/packages.git
       path: packages/camera/camera_android_camerax
+  camera_avfoundation: ^0.9.18
   camera_platform_interface:
     git:
       url: https://github.com/Niuuuh/packages.git
       path: packages/camera/camera_platform_interface
-
+  camera_web: ^0.3.3
+  flutter:
+    sdk: flutter
+  flutter_plugin_android_lifecycle: ^2.0.2
 
 dev_dependencies:
   flutter_test:
